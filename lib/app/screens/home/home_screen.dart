@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 
 const double _textFontSize = 24.0;
 
+///Widget that represents UI of main screen.
 class HomeScreen extends StatefulWidget {
+  /// Creating an instance of HomeScreen widget
   const HomeScreen({
     super.key,
   });
@@ -14,18 +16,20 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Color? screenColor;
-  Color? textColor;
+  ///Initialization of variables that contains colors
+  ///for screen background and text,
+  ///and set them to default [Colors.black] values.
+  Color backgroundColor = Colors.black;
+  Color textColor = Colors.black;
 
   @override
   void initState() {
-    screenColor = generateRandomColor();
-    textColor = checkWhichTextColorIsNeeded(screenColor!.computeLuminance());
+    backgroundColor = generateRandomBackgroundColor();
+    textColor = checkWhichTextColorIsNeeded(backgroundColor.computeLuminance());
 
     super.initState();
   }
 
-  ///
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,56 +37,52 @@ class _HomeScreenState extends State<HomeScreen> {
         onTap: () => updateScreenState(),
         child: Stack(
           children: [
-            buildColorScreen(),
-            buildScreenText(),
+            Positioned.fill(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                color: backgroundColor,
+              ),
+            ),
+            Center(
+              child: Text(
+                'Hello there',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: _textFontSize,
+                  color: textColor,
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget buildColorScreen() {
-    return Positioned(
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        color: screenColor,
-      ),
-    );
-  }
-
-  Widget buildScreenText() {
-    return Positioned.fill(
-        child: Center(
-      child: Text(
-        'Hello there',
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: _textFontSize,
-          color: textColor,
-        ),
-      ),
-    ));
-  }
-
-  Color generateRandomColor() {
-    final Color newScreenColor =
+  ///Returns random color for background by tap on screen
+  Color generateRandomBackgroundColor() {
+    final Color newBackgroundColor =
         Color((math.Random().nextDouble() * 0xFFFFFF).toInt()).withOpacity(1.0);
 
-    checkWhichTextColorIsNeeded(newScreenColor.computeLuminance());
-
-    return newScreenColor;
+    return newBackgroundColor;
   }
 
+  ///Check if background color is dark or bright
+  ///and sets text color.
+  ///This helps text to be readable despite on background color.
   Color checkWhichTextColorIsNeeded(double luminance) {
     final Color newTextColor = luminance < 0.2 ? Colors.white : Colors.black;
 
     return newTextColor;
   }
 
+  ///Notify the framework that state of the screen is changed and
+  ///apply changes to widgets.
   void updateScreenState() {
     setState(() {
-      screenColor = generateRandomColor();
-      textColor = checkWhichTextColorIsNeeded(screenColor!.computeLuminance());
+      backgroundColor = generateRandomBackgroundColor();
+      textColor =
+          checkWhichTextColorIsNeeded(backgroundColor.computeLuminance());
     });
   }
 }

@@ -1,51 +1,88 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, /*required this.title*/});
+const double _textFontSize = 24.0;
 
-  //final String title;
+///Widget that represents UI of main screen.
+class HomeScreen extends StatefulWidget {
+  /// Creating an instance of HomeScreen widget
+  const HomeScreen({
+    super.key,
+  });
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _HomeScreenState extends State<HomeScreen> {
+  ///Initialization of variables that contains colors
+  ///for screen background and text,
+  ///and set them to default [Colors.black] values.
+  Color backgroundColor = Colors.black;
+  Color textColor = Colors.black;
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  @override
+  void initState() {
+    backgroundColor = generateRandomBackgroundColor();
+    textColor = checkWhichTextColorIsNeeded(backgroundColor.computeLuminance());
+
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('widget.title'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+      body: GestureDetector(
+        onTap: () => updateScreenState(),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                color: backgroundColor,
+              ),
             ),
-            Text(
-              '$_counter',
-              style: Theme
-                  .of(context)
-                  .textTheme
-                  .headline4,
+            Center(
+              child: Text(
+                'Hello there',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: _textFontSize,
+                  color: textColor,
+                ),
+              ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+
+  ///Returns random color for background by tap on screen
+  Color generateRandomBackgroundColor() {
+    final Color newBackgroundColor =
+        Color((math.Random().nextDouble() * 0xFFFFFF).toInt()).withOpacity(1.0);
+
+    return newBackgroundColor;
+  }
+
+  ///Check if background color is dark or bright
+  ///and sets text color.
+  ///This helps text to be readable despite on background color.
+  Color checkWhichTextColorIsNeeded(double luminance) {
+    final Color newTextColor = luminance < 0.2 ? Colors.white : Colors.black;
+
+    return newTextColor;
+  }
+
+  ///Notify the framework that state of the screen is changed and
+  ///apply changes to widgets.
+  void updateScreenState() {
+    setState(() {
+      backgroundColor = generateRandomBackgroundColor();
+      textColor =
+          checkWhichTextColorIsNeeded(backgroundColor.computeLuminance());
+    });
   }
 }

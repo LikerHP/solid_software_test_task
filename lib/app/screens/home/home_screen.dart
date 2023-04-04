@@ -1,51 +1,88 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, /*required this.title*/});
+const double _textFontSize = 24.0;
 
-  //final String title;
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({
+    super.key,
+  });
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _HomeScreenState extends State<HomeScreen> {
+  Color? screenColor;
+  Color? textColor;
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  @override
+  void initState() {
+    screenColor = generateRandomColor();
+    textColor = checkWhichTextColorIsNeeded(screenColor!.computeLuminance());
+
+    super.initState();
   }
 
+  ///
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('widget.title'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme
-                  .of(context)
-                  .textTheme
-                  .headline4,
-            ),
+      body: GestureDetector(
+        onTap: () => updateScreenState(),
+        child: Stack(
+          children: [
+            buildColorScreen(),
+            buildScreenText(),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+
+  Widget buildColorScreen() {
+    return Positioned(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        color: screenColor,
+      ),
+    );
+  }
+
+  Widget buildScreenText() {
+    return Positioned.fill(
+        child: Center(
+      child: Text(
+        'Hello there',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: _textFontSize,
+          color: textColor,
+        ),
+      ),
+    ));
+  }
+
+  Color generateRandomColor() {
+    final Color newScreenColor =
+        Color((math.Random().nextDouble() * 0xFFFFFF).toInt()).withOpacity(1.0);
+
+    checkWhichTextColorIsNeeded(newScreenColor.computeLuminance());
+
+    return newScreenColor;
+  }
+
+  Color checkWhichTextColorIsNeeded(double luminance) {
+    final Color newTextColor = luminance < 0.2 ? Colors.white : Colors.black;
+
+    return newTextColor;
+  }
+
+  void updateScreenState() {
+    setState(() {
+      screenColor = generateRandomColor();
+      textColor = checkWhichTextColorIsNeeded(screenColor!.computeLuminance());
+    });
   }
 }
